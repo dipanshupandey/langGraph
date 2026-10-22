@@ -10,6 +10,7 @@ It is a personal learning project, not production code.
 | --- | --- |
 | `1_BMI_Workflow.ipynb` | First workflow: a `TypedDict` state and a node that calculates BMI |
 | `2_Simple_LLM_Workflow.ipynb` | Simple LLM workflow: a node that sends a prompt to a Cohere model and stores the answer in state |
+| `3_Prompt_Chaining.ipynb` | Prompt chaining: a 3-step workflow (outline, content, evaluation) where each node's output feeds the next |
 
 More notebooks will be added as I progress.
 
@@ -37,3 +38,5 @@ Then open a notebook in VS Code or run `jupyter notebook`.
 - Calling an LLM (Cohere) from a node using the chat message format
 - Loading API keys from a `.env` file instead of hardcoding them
 - Handling reasoning-model responses by extracting only the text item from the content list
+- Prompt chaining: connecting nodes in sequence with `add_edge`, using `START` and `END`
+- Rendering LLM output in notebooks with `IPython.display.Markdown`
