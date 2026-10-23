@@ -11,6 +11,7 @@ It is a personal learning project, not production code.
 | `1_BMI_Workflow.ipynb` | First workflow: a `TypedDict` state and a node that calculates BMI |
 | `2_Simple_LLM_Workflow.ipynb` | Simple LLM workflow: a node that sends a prompt to a Cohere model and stores the answer in state |
 | `3_Prompt_Chaining.ipynb` | Prompt chaining: a 3-step workflow (outline, content, evaluation) where each node's output feeds the next |
+| `4_Parallel_simple_workflow.ipynb` | Parallel workflow: three independent cricket-stat nodes (strike rate, boundary %, boundaries per delivery) run in parallel and merge into a summary node |
 
 More notebooks will be added as I progress.
 
@@ -40,3 +41,6 @@ Then open a notebook in VS Code or run `jupyter notebook`.
 - Handling reasoning-model responses by extracting only the text item from the content list
 - Prompt chaining: connecting nodes in sequence with `add_edge`, using `START` and `END`
 - Rendering LLM output in notebooks with `IPython.display.Markdown`
+- Parallel workflows: fanning out from `START` to several nodes and merging them into one node
+- Returning partial state updates (e.g. `{'sr': sr}`) so parallel nodes don't write the same key
+- How LangGraph runs supersteps: parallel nodes read a state snapshot, and their updates are applied together after all of them finish
