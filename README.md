@@ -12,6 +12,7 @@ It is a personal learning project, not production code.
 | `2_Simple_LLM_Workflow.ipynb` | Simple LLM workflow: a node that sends a prompt to a Cohere model and stores the answer in state |
 | `3_Prompt_Chaining.ipynb` | Prompt chaining: a 3-step workflow (outline, content, evaluation) where each node's output feeds the next |
 | `4_Parallel_simple_workflow.ipynb` | Parallel workflow: three independent cricket-stat nodes (strike rate, boundary %, boundaries per delivery) run in parallel and merge into a summary node |
+| `5_Parallel_LLM_workflow.ipynb` | Parallel LLM workflow: an essay is evaluated in parallel for language, depth of analysis, and clarity, using structured output; scores are collected with a reducer and averaged |
 
 More notebooks will be added as I progress.
 
@@ -20,7 +21,7 @@ More notebooks will be added as I progress.
 ```zsh
 python3 -m venv myenv
 source myenv/bin/activate
-pip install langgraph cohere python-dotenv jupyter
+pip install langgraph cohere langchain-cohere pydantic python-dotenv jupyter
 ```
 
 Create a `.env` file in the project root with your API key (it is git-ignored, so it is never committed):
@@ -44,3 +45,8 @@ Then open a notebook in VS Code or run `jupyter notebook`.
 - Parallel workflows: fanning out from `START` to several nodes and merging them into one node
 - Returning partial state updates (e.g. `{'sr': sr}`) so parallel nodes don't write the same key
 - How LangGraph runs supersteps: parallel nodes read a state snapshot, and their updates are applied together after all of them finish
+- Pydantic models (`BaseModel`, `Field`) for validated data schemas
+- Structured output with `model.with_structured_output(Schema)` from LangChain, which returns a typed object instead of free text
+- Using `ChatCohere` (`langchain-cohere`) instead of the raw Cohere SDK, since `with_structured_output` is a LangChain method
+- Cohere's structured output does not support numeric constraints like `ge`/`le`, so the allowed range goes in the field description
+- Reducers (`Annotated[list[int], operator.add]`) to safely combine values written by parallel nodes
