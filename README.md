@@ -13,6 +13,7 @@ It is a personal learning project, not production code.
 | `3_Prompt_Chaining.ipynb` | Prompt chaining: a 3-step workflow (outline, content, evaluation) where each node's output feeds the next |
 | `4_Parallel_simple_workflow.ipynb` | Parallel workflow: three independent cricket-stat nodes (strike rate, boundary %, boundaries per delivery) run in parallel and merge into a summary node |
 | `5_Parallel_LLM_workflow.ipynb` | Parallel LLM workflow: an essay is evaluated in parallel for language, depth of analysis, and clarity, using structured output; scores are collected with a reducer and averaged |
+| `6_Conditional_Simple_Workflow.ipynb` | Conditional workflow: a node generates random marks, and a routing function sends the graph to a fail, average, or good node based on the score |
 
 More notebooks will be added as I progress.
 
@@ -50,3 +51,5 @@ Then open a notebook in VS Code or run `jupyter notebook`.
 - Using `ChatCohere` (`langchain-cohere`) instead of the raw Cohere SDK, since `with_structured_output` is a LangChain method
 - Cohere's structured output does not support numeric constraints like `ge`/`le`, so the allowed range goes in the field description
 - Reducers (`Annotated[list[int], operator.add]`) to safely combine values written by parallel nodes
+- Conditional workflows: `add_conditional_edges` with a routing function that returns the name of the next node
+- Mapping routing-function outputs to node names with a path map, so only one branch runs
