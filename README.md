@@ -14,6 +14,7 @@ It is a personal learning project, not production code.
 | `4_Parallel_simple_workflow.ipynb` | Parallel workflow: three independent cricket-stat nodes (strike rate, boundary %, boundaries per delivery) run in parallel and merge into a summary node |
 | `5_Parallel_LLM_workflow.ipynb` | Parallel LLM workflow: an essay is evaluated in parallel for language, depth of analysis, and clarity, using structured output; scores are collected with a reducer and averaged |
 | `6_Conditional_Simple_Workflow.ipynb` | Conditional workflow: a node generates random marks, and a routing function sends the graph to a fail, average, or good node based on the score |
+| `7_Conditional_LLM_Workflow.ipynb` | Conditional LLM workflow: an LLM classifies a review as positive or negative; positive reviews get a thank-you reply, negative ones are diagnosed (issue type, tone, urgency) with structured output and get a support reply |
 
 More notebooks will be added as I progress.
 
@@ -53,3 +54,7 @@ Then open a notebook in VS Code or run `jupyter notebook`.
 - Reducers (`Annotated[list[int], operator.add]`) to safely combine values written by parallel nodes
 - Conditional workflows: `add_conditional_edges` with a routing function that returns the name of the next node
 - Mapping routing-function outputs to node names with a path map, so only one branch runs
+- Using an LLM to decide the route: structured output with `Literal` fields (e.g. sentiment, issue type, tone, urgency) feeding a routing function
+- Nodes on a skipped branch never run, so their state keys (e.g. `diagnosis` for positive reviews) are missing from the final state
+- Extracting plain text from a reasoning model's content list with a small helper (`get_text`)
+- Giving the LLM the original input (not just extracted labels) in later prompts so replies stay specific, and not letting it invent actions it can't perform
