@@ -15,6 +15,7 @@ It is a personal learning project, not production code.
 | `5_Parallel_LLM_workflow.ipynb` | Parallel LLM workflow: an essay is evaluated in parallel for language, depth of analysis, and clarity, using structured output; scores are collected with a reducer and averaged |
 | `6_Conditional_Simple_Workflow.ipynb` | Conditional workflow: a node generates random marks, and a routing function sends the graph to a fail, average, or good node based on the score |
 | `7_Conditional_LLM_Workflow.ipynb` | Conditional LLM workflow: an LLM classifies a review as positive or negative; positive reviews get a thank-you reply, negative ones are diagnosed (issue type, tone, urgency) with structured output and get a support reply |
+| `8_Iterative_LLM_Workflow.ipynb` | Iterative (loop) LLM workflow: one model generates a tweet, a second evaluates it with structured output, and a third rewrites it from the feedback; the loop repeats until the tweet is approved or a maximum iteration count is reached |
 
 More notebooks will be added as I progress.
 
@@ -58,3 +59,9 @@ Then open a notebook in VS Code or run `jupyter notebook`.
 - Nodes on a skipped branch never run, so their state keys (e.g. `diagnosis` for positive reviews) are missing from the final state
 - Extracting plain text from a reasoning model's content list with a small helper (`get_text`)
 - Giving the LLM the original input (not just extracted labels) in later prompts so replies stay specific, and not letting it invent actions it can't perform
+- Iterative workflows: a conditional edge that routes back to an earlier node (evaluate, optimize, evaluate, ...) to form a loop
+- Stopping a loop safely with an iteration counter and a max-iteration limit in state
+- Using a different Cohere model per role (generator, evaluator, optimizer) and setting `temperature` per role (high for creative, `0` for evaluation)
+- Building prompts with `SystemMessage` and `HumanMessage` from `langchain_core.messages`, and calling models with `.invoke(...)` (models are not called directly)
+- Accumulating history across loop passes with reducer fields (`tweetHistory`, `feedBackHistory`)
+- Testing a loop by forcing the evaluator to reject for a few rounds, since a lenient evaluator may approve on the first pass
