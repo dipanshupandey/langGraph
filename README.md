@@ -16,6 +16,7 @@ It is a personal learning project, not production code.
 | `6_Conditional_Simple_Workflow.ipynb` | Conditional workflow: a node generates random marks, and a routing function sends the graph to a fail, average, or good node based on the score |
 | `7_Conditional_LLM_Workflow.ipynb` | Conditional LLM workflow: an LLM classifies a review as positive or negative; positive reviews get a thank-you reply, negative ones are diagnosed (issue type, tone, urgency) with structured output and get a support reply |
 | `8_Iterative_LLM_Workflow.ipynb` | Iterative (loop) LLM workflow: one model generates a tweet, a second evaluates it with structured output, and a third rewrites it from the feedback; the loop repeats until the tweet is approved or a maximum iteration count is reached |
+| `9_Project_Chatbot.ipynb` | Chatbot project: a single-node LangGraph chatbot using a Cohere model, with conversation memory per `thread_id` (via `MemorySaver`) and a terminal chat loop |
 
 More notebooks will be added as I progress.
 
@@ -65,3 +66,8 @@ Then open a notebook in VS Code or run `jupyter notebook`.
 - Building prompts with `SystemMessage` and `HumanMessage` from `langchain_core.messages`, and calling models with `.invoke(...)` (models are not called directly)
 - Accumulating history across loop passes with reducer fields (`tweetHistory`, `feedBackHistory`)
 - Testing a loop by forcing the evaluator to reject for a few rounds, since a lenient evaluator may approve on the first pass
+- Chatbot state with `messages: Annotated[list[BaseMessage], add_messages]`, where nodes return new messages as a list and `add_messages` appends them
+- Invoking a graph with a dict that matches the state (`{"messages": [HumanMessage(...)]}`), not a raw string
+- Conversation memory with a checkpointer (`MemorySaver`) and a `thread_id` in the config: the same `thread_id` continues a conversation, a new one starts fresh
+- `MemorySaver` keeps memory only in the running process; a database-backed checkpointer is needed to persist chats across restarts
+- Structured output returns a Pydantic object, not a message, so it must be converted (e.g. to `AIMessage`) before going into `messages`
