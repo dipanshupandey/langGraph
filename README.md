@@ -25,7 +25,7 @@ More notebooks will be added as I progress.
 ```zsh
 python3 -m venv myenv
 source myenv/bin/activate
-pip install langgraph cohere langchain-cohere pydantic python-dotenv jupyter
+pip install langgraph cohere langchain-cohere pydantic python-dotenv jupyter streamlit
 ```
 
 Create a `.env` file in the project root with your API key (it is git-ignored, so it is never committed):
@@ -35,6 +35,23 @@ COHERE_API_KEY=your-key-here
 ```
 
 Then open a notebook in VS Code or run `jupyter notebook`.
+
+## Chatbot app
+
+`projectChatBot/` turns the chatbot from `9_Project_Chatbot.ipynb` into a small app with a Streamlit UI:
+
+| File | Role |
+| --- | --- |
+| `projectChatBot/backend.py` | LangGraph chatbot (Cohere model with `MemorySaver` memory). Run it directly (`python projectChatBot/backend.py`) for a terminal chat. |
+| `projectChatBot/frontend.py` | Streamlit chat UI that imports `bot` from `backend.py`. Each browser session gets its own `thread_id`, so chats have separate memory. |
+
+To run the web app, from the project root:
+
+```zsh
+streamlit run projectChatBot/frontend.py
+```
+
+Memory is kept in the running process (`MemorySaver`), so it is lost when the app restarts.
 
 ## Concepts covered so far
 
@@ -71,3 +88,5 @@ Then open a notebook in VS Code or run `jupyter notebook`.
 - Conversation memory with a checkpointer (`MemorySaver`) and a `thread_id` in the config: the same `thread_id` continues a conversation, a new one starts fresh
 - `MemorySaver` keeps memory only in the running process; a database-backed checkpointer is needed to persist chats across restarts
 - Structured output returns a Pydantic object, not a message, so it must be converted (e.g. to `AIMessage`) before going into `messages`
+- Splitting an app into a LangGraph backend and a Streamlit frontend, with an `if __name__ == "__main__":` guard so importing the backend doesn't start the terminal loop
+- Streamlit basics: the script reruns on every interaction, so per-session data (display history, `thread_id`) lives in `st.session_state`; chat UI with `st.chat_message` and `st.chat_input`
