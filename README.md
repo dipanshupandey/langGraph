@@ -16,7 +16,7 @@ It is a personal learning project, not production code.
 | `6_Conditional_Simple_Workflow.ipynb` | Conditional workflow: a node generates random marks, and a routing function sends the graph to a fail, average, or good node based on the score |
 | `7_Conditional_LLM_Workflow.ipynb` | Conditional LLM workflow: an LLM classifies a review as positive or negative; positive reviews get a thank-you reply, negative ones are diagnosed (issue type, tone, urgency) with structured output and get a support reply |
 | `8_Iterative_LLM_Workflow.ipynb` | Iterative (loop) LLM workflow: one model generates a tweet, a second evaluates it with structured output, and a third rewrites it from the feedback; the loop repeats until the tweet is approved or a maximum iteration count is reached |
-| `9_Project_Chatbot.ipynb` | Chatbot project: a single-node LangGraph chatbot using a Cohere model, with conversation memory per `thread_id` (via `MemorySaver`) and a terminal chat loop |
+| `9_Project_Chatbot.ipynb` | Chatbot project: a single-node LangGraph chatbot using a Cohere model, with conversation memory per `thread_id` (via `MemorySaver`) and a terminal chat loop that streams replies |
 
 More notebooks will be added as I progress.
 
@@ -43,7 +43,7 @@ Then open a notebook in VS Code or run `jupyter notebook`.
 | File | Role |
 | --- | --- |
 | `projectChatBot/backend.py` | LangGraph chatbot (Cohere model with `MemorySaver` memory). Run it directly (`python projectChatBot/backend.py`) for a terminal chat. |
-| `projectChatBot/frontend.py` | Streamlit chat UI that imports `bot` from `backend.py`. Each browser session gets its own `thread_id`, so chats have separate memory. |
+| `projectChatBot/frontend.py` | Streamlit chat UI that imports `bot` from `backend.py` and streams replies as they are generated. Each browser session gets its own `thread_id`, so chats have separate memory. |
 
 To run the web app, from the project root:
 
@@ -90,3 +90,4 @@ Memory is kept in the running process (`MemorySaver`), so it is lost when the ap
 - Structured output returns a Pydantic object, not a message, so it must be converted (e.g. to `AIMessage`) before going into `messages`
 - Splitting an app into a LangGraph backend and a Streamlit frontend, with an `if __name__ == "__main__":` guard so importing the backend doesn't start the terminal loop
 - Streamlit basics: the script reruns on every interaction, so per-session data (display history, `thread_id`) lives in `st.session_state`; chat UI with `st.chat_message` and `st.chat_input`
+- Streaming replies: `bot.stream(..., stream_mode="messages")` yields `(chunk, metadata)` pairs as the model generates text, and `st.write_stream` displays them live and returns the full reply
