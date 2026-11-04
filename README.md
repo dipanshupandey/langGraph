@@ -43,7 +43,7 @@ Then open a notebook in VS Code or run `jupyter notebook`.
 | File | Role |
 | --- | --- |
 | `projectChatBot/backend.py` | LangGraph chatbot (Cohere model with `MemorySaver` memory). Run it directly (`python projectChatBot/backend.py`) for a terminal chat. |
-| `projectChatBot/frontend.py` | Streamlit chat UI that imports `bot` from `backend.py` and streams replies as they are generated. Each browser session gets its own `thread_id`, so chats have separate memory. |
+| `projectChatBot/frontend.py` | Streamlit chat UI that imports `bot` from `backend.py` and streams replies as they are generated. Each chat has its own `thread_id` (separate memory); a sidebar lists the chats, with a "New Chat" button, and clicking a past chat reloads its messages. |
 
 To run the web app, from the project root:
 
@@ -51,7 +51,7 @@ To run the web app, from the project root:
 streamlit run projectChatBot/frontend.py
 ```
 
-Memory is kept in the running process (`MemorySaver`), so it is lost when the app restarts.
+Memory is kept in the running process (`MemorySaver`), so it is lost when the app restarts. The sidebar's list of chats is kept in the browser session, so it also resets when the page is refreshed.
 
 ## Concepts covered so far
 
@@ -91,3 +91,5 @@ Memory is kept in the running process (`MemorySaver`), so it is lost when the ap
 - Splitting an app into a LangGraph backend and a Streamlit frontend, with an `if __name__ == "__main__":` guard so importing the backend doesn't start the terminal loop
 - Streamlit basics: the script reruns on every interaction, so per-session data (display history, `thread_id`) lives in `st.session_state`; chat UI with `st.chat_message` and `st.chat_input`
 - Streaming replies: `bot.stream(..., stream_mode="messages")` yields `(chunk, metadata)` pairs as the model generates text, and `st.write_stream` displays them live and returns the full reply
+- Multiple chats in one app: one `thread_id` per chat, a sidebar of chats, and `bot.get_state(config).values["messages"]` to reload a past chat's messages from the checkpointer
+- Streamlit button callbacks (`on_click` with `args`) run before the script reruns, which keeps "New Chat" and "switch chat" logic in small functions
