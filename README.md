@@ -25,7 +25,7 @@ More notebooks will be added as I progress.
 ```zsh
 python3 -m venv myenv
 source myenv/bin/activate
-pip install langgraph cohere langchain-cohere pydantic python-dotenv jupyter streamlit
+pip install langgraph langgraph-checkpoint-sqlite cohere langchain-cohere pydantic python-dotenv jupyter streamlit
 ```
 
 Create a `.env` file in the project root with your API key (it is git-ignored, so it is never committed):
@@ -42,8 +42,8 @@ Then open a notebook in VS Code or run `jupyter notebook`.
 
 | File | Role |
 | --- | --- |
-| `projectChatBot/backend.py` | LangGraph chatbot (Cohere model with `MemorySaver` memory). Run it directly (`python projectChatBot/backend.py`) for a terminal chat. |
-| `projectChatBot/frontend.py` | Streamlit chat UI that imports `bot` from `backend.py` and streams replies as they are generated. Each chat has its own `thread_id` (separate memory); a sidebar lists the chats, with a "New Chat" button, and clicking a past chat reloads its messages. |
+| `projectChatBot/backend.py` | LangGraph chatbot (Cohere model). Chats are saved in a SQLite database (`chatbot.db`) through `SqliteSaver`, and `retrieve_all_threads()` returns the ids of all saved chats. It has no terminal chat; use the Streamlit app. |
+| `projectChatBot/frontend.py` | Streamlit chat UI that imports `bot` from `backend.py` and streams replies as they are generated. Each chat has its own `thread_id` (separate memory); a sidebar lists the chats (saved chats are loaded from the database when the app opens), with a "New Chat" button, and clicking a past chat reloads its messages. |
 
 To run the web app, from the project root:
 
@@ -51,7 +51,7 @@ To run the web app, from the project root:
 streamlit run projectChatBot/frontend.py
 ```
 
-Memory is kept in the running process (`MemorySaver`), so it is lost when the app restarts. The sidebar's list of chats is kept in the browser session, so it also resets when the page is refreshed.
+Chats are saved to `chatbot.db`, so they survive restarts. The file is created in the folder you launch the app from. It contains your conversations, so don't commit it (add it to `.gitignore`). A new chat is saved only after its first message, so an unused chat disappears when the page is refreshed.
 
 ## Concepts covered so far
 
@@ -86,7 +86,8 @@ Memory is kept in the running process (`MemorySaver`), so it is lost when the ap
 - Chatbot state with `messages: Annotated[list[BaseMessage], add_messages]`, where nodes return new messages as a list and `add_messages` appends them
 - Invoking a graph with a dict that matches the state (`{"messages": [HumanMessage(...)]}`), not a raw string
 - Conversation memory with a checkpointer (`MemorySaver`) and a `thread_id` in the config: the same `thread_id` continues a conversation, a new one starts fresh
-- `MemorySaver` keeps memory only in the running process; a database-backed checkpointer is needed to persist chats across restarts
+- `MemorySaver` keeps memory only in the running process; a database-backed checkpointer such as `SqliteSaver` persists chats across restarts
+- Listing saved chats with `checkpointer.list(None)` and reading each checkpoint's `thread_id`, so the sidebar can show past chats when the app opens
 - Structured output returns a Pydantic object, not a message, so it must be converted (e.g. to `AIMessage`) before going into `messages`
 - Splitting an app into a LangGraph backend and a Streamlit frontend, with an `if __name__ == "__main__":` guard so importing the backend doesn't start the terminal loop
 - Streamlit basics: the script reruns on every interaction, so per-session data (display history, `thread_id`) lives in `st.session_state`; chat UI with `st.chat_message` and `st.chat_input`
