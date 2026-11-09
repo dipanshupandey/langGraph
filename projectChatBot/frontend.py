@@ -6,7 +6,7 @@ from langchain_core.messages import HumanMessage
 
 load_dotenv()  # load COHERE_API_KEY before the backend creates the model
 
-from backend import bot  # the LangGraph chatbot (import after load_dotenv)
+from backend import bot,retrieve_all_threads  # the LangGraph chatbot (import after load_dotenv)
 
 
 # ---------- Helper functions ----------
@@ -53,8 +53,10 @@ if "thread_id" not in st.session_state:
 if "history" not in st.session_state:
     st.session_state["history"] = []  # messages shown on screen
 if "thread_list" not in st.session_state:
-    st.session_state["thread_list"] = [st.session_state["thread_id"]]  # chats in the sidebar
-
+    st.session_state["thread_list"] = retrieve_all_threads()
+# Make sure the current (possibly brand-new) chat is also in the sidebar
+if st.session_state["thread_id"] not in st.session_state["thread_list"]:
+    st.session_state["thread_list"].append(st.session_state["thread_id"])
 
 # ---------- Sidebar: chat list ----------
 
