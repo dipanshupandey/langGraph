@@ -53,6 +53,18 @@ streamlit run projectChatBot/frontend.py
 
 Chats are saved to `chatbot.db`, so they survive restarts. The file is created in the folder you launch the app from. It contains your conversations, so don't commit it (add it to `.gitignore`). A new chat is saved only after its first message, so an unused chat disappears when the page is refreshed.
 
+## LangSmith
+
+`langsmith-masterclass/1_simple_llm_call.py` is a simple chain (prompt → model → string parser) that uses a Cohere model, with every run traced in LangSmith.
+
+What I learned:
+
+- A chain is built with the `|` operator (`prompt | model | parser`): the prompt fills its placeholders, the model answers, and the parser turns the reply into a plain string. `chain.invoke({...})` runs it.
+- `ChatPromptTemplate` (separate system and human messages) is different from `PromptTemplate` (one block of text). A system message only reaches the model if it is part of the template, and extra input keys are silently ignored.
+- Tracing needs no code changes. Setting `LANGCHAIN_TRACING_V2`, `LANGCHAIN_API_KEY`, and `LANGCHAIN_PROJECT` in `.env` is enough for each run to appear in LangSmith.
+- A trace shows each step's input, output, latency, tokens, and cost. The model step's input showed me that my `system_message` never reached the model, which is how I found the bug.
+- Reusing a variable name (`prompt` for both the template and the input values) is confusing. The chain keeps its own reference to the template, but separate names like `inputs` are clearer.
+
 ## Concepts covered so far
 
 - Defining graph state with `TypedDict`
