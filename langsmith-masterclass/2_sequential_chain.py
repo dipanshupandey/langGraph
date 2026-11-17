@@ -21,6 +21,6 @@ parser = StrOutputParser()
 
 chain = prompt1 | model | parser | prompt2 | model | parser
 
-result = chain.invoke({'topic': 'Unemployment in India'})
+result = chain.invoke({'topic': 'Nvidia CEO Jensen Huang news with chinese spy allegations'})
 
 print(result)

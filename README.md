@@ -65,6 +65,8 @@ What I learned:
 - A trace shows each step's input, output, latency, tokens, and cost. The model step's input showed me that my `system_message` never reached the model, which is how I found the bug.
 - Reusing a variable name (`prompt` for both the template and the input values) is confusing. The chain keeps its own reference to the template, but separate names like `inputs` are clearer.
 
+`langsmith-masterclass/2_sequential_chain.py` is a sequential chain with two prompts and two model calls (`prompt1 | model | parser | prompt2 | model | parser`): the first call generates a report on a topic, and the second turns that report into a 5-point summary. I ran it and looked at the trace in LangSmith, where each step appears as its own node.
+
 ## Concepts covered so far
 
 - Defining graph state with `TypedDict`
