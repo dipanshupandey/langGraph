@@ -67,6 +67,15 @@ What I learned:
 
 `langsmith-masterclass/2_sequential_chain.py` is a sequential chain with two prompts and two model calls (`prompt1 | model | parser | prompt2 | model | parser`): the first call generates a report on a topic, and the second turns that report into a 5-point summary. I ran it and looked at the trace in LangSmith, where each step appears as its own node.
 
+`langsmith-masterclass/3_rag_v1.py` is a RAG (retrieval-augmented generation) pipeline over a PDF, with the run traced in LangSmith:
+
+- `PyPDFLoader` loads the PDF (one document per page), and LangChain's `RecursiveCharacterTextSplitter` (`langchain_text_splitters`) cuts it into 1,000-character chunks with a 150-character overlap.
+- `CohereEmbeddings` (`embed-english-v3.0`) turns each chunk into a vector, and a FAISS index stores the vectors in memory. A retriever returns the 4 chunks closest to a question.
+- The chain is `RunnableParallel` (the retriever plus `RunnableLambda(format_docs)` builds `context`, `RunnablePassthrough` keeps `question`) → `ChatPromptTemplate` → `ChatCohere` (`command-a-03-2025`, temperature 0) → `StrOutputParser`. The prompt tells the model to answer only from the context.
+- I tested it on a small generated 4-page PDF about a fictional island, so a correct answer shows the answer came from the document. Questions that need facts from two pages also worked.
+- In LangSmith, the trace of a question shows the retriever's chunks and the final prompt sent to the model.
+- A large PDF (a 441-page book) hit the Cohere trial key's rate limit while embedding, so I used the small PDF for testing.
+
 ## Concepts covered so far
 
 - Defining graph state with `TypedDict`
