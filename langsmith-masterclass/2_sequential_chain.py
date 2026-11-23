@@ -15,11 +15,12 @@ prompt2 = PromptTemplate(
     input_variables=['text']
 )
 
-model = ChatCohere()
+model1 = ChatCohere(model="command-a-03-2025",temperature=0.7)
+model2 = ChatCohere(model="command-r7b-12-2024",temperature=0.5)
 
 parser = StrOutputParser()
 
-chain = prompt1 | model | parser | prompt2 | model | parser
+chain = prompt1 | model1 | parser | prompt2 | model2 | parser
 
 result = chain.invoke({'topic': 'Nvidia CEO Jensen Huang news with chinese spy allegations'})
 
