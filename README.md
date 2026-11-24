@@ -76,6 +76,14 @@ What I learned:
 - In LangSmith, the trace of a question shows the retriever's chunks and the final prompt sent to the model.
 - A large PDF (a 441-page book) hit the Cohere trial key's rate limit while embedding, so I used the small PDF for testing.
 
+`langsmith-masterclass/3_rag_v2.py` is the same RAG pipeline, but with the setup steps traced too using `@traceable` from `langsmith`:
+
+- In v1, only the chain was traced. The load, split, and embed steps ran as plain functions, so they did not show up in LangSmith.
+- Putting `@traceable(name="...")` on a function makes each call to it a run in LangSmith, with its inputs and outputs. I wrapped `load_pdf`, `split_documents`, and `build_vectorstore`, and a `setup_pipeline` function that calls the three, so they appear as one parent run with the steps nested inside.
+- The `name` argument sets the run's label, so runs are easy to find instead of showing a generic function name.
+- The query is traced as before by passing `config={"run_name": "pdf_rag_query"}` to `chain.invoke(...)`, which gives that run a readable name.
+- `@traceable` works on any Python function, not only LangChain components, so a whole pipeline can be traced end to end.
+
 ## Concepts covered so far
 
 - Defining graph state with `TypedDict`
