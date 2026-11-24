@@ -7,7 +7,7 @@ from langsmith import traceable
 
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain_cohere import CohereEmbeddings, ChatCohere
 from langchain_community.vectorstores import FAISS
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableParallel, RunnablePassthrough, RunnableLambda
@@ -15,7 +15,7 @@ from langchain_core.output_parsers import StrOutputParser
 
 load_dotenv()
 
-PDF_PATH = "islr.pdf"  # <- change to your file
+PDF_PATH = "test_rag.pdf"  # <- change to your file
 
 # ----------------- helpers (not traced individually) -----------------
 @traceable(name="load_pdf")
@@ -32,7 +32,7 @@ def split_documents(docs, chunk_size=1000, chunk_overlap=150):
 
 @traceable(name="build_vectorstore")
 def build_vectorstore(splits):
-    emb = OpenAIEmbeddings(model="text-embedding-3-small")
+    emb = CohereEmbeddings(model="embed-english-v3.0")
     return FAISS.from_documents(splits, emb)
 
 # ----------------- parent setup function (traced) -----------------
@@ -45,7 +45,7 @@ def setup_pipeline(pdf_path: str, chunk_size=1000, chunk_overlap=150):
     return vs
 
 # ----------------- model, prompt, and run -----------------
-llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+llm = ChatCohere(model="command-a-03-2025", temperature=0)
 
 prompt = ChatPromptTemplate.from_messages([
     ("system", "Answer ONLY from the provided context. If not found, say you don't know."),
@@ -71,7 +71,7 @@ def setup_pipeline_and_query(pdf_path: str, question: str):
     chain = parallel | prompt | llm | StrOutputParser()
 
     # This LangChain run stays under the same root (since we're inside this traced function)
-    lc_config = {"run_name": "pdf_rag_query"}
+    lc_config = {"run_name": "pdf_rag_query_all_under_root"}
     return chain.invoke(question, config=lc_config)
 
 # ----------------- CLI -----------------
